@@ -1,4 +1,9 @@
-# Virtual Trading Bot — paper trading, no real money 📈
+# 🤖 Virtual Trading Bot — paper trading, no real money 📈
+
+> ## 🔗 [לחצו כאן לדף התוצאות החי של הבוט](https://wryl6773-collab.github.io/trading-bot/)
+> **זה הקישור לשליחה לחברים:** https://wryl6773-collab.github.io/trading-bot/
+> הבוט רץ בענן כל 5 דקות בשעות המסחר בארה"ב. אפשר להתקין את הדף כאפליקציה עם אייקון.
+> **Live results page (share this link):** https://wryl6773-collab.github.io/trading-bot/
 
 **English summary:** a learning project. A local Python app runs 10 well-known trading strategies
 on real US stock prices (S&P 500, via `yfinance`) with **virtual money only** ($550 per strategy).
