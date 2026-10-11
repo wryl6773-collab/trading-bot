@@ -1,0 +1,6 @@
+pandas
+yfinance
+python-bidi
+requests
+lxml
+exchange_calendars

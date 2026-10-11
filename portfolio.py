@@ -1,7 +1,8 @@
 import json
 import os
 
-DATA_DIR = "data"
+# תיקיית הנתונים. בענן (GitHub) היא מוגדרת אחרת דרך משתנה הסביבה BOT_DATA_DIR
+DATA_DIR = os.environ.get("BOT_DATA_DIR", "data")
 STATE_FILE = os.path.join(DATA_DIR, "state.json")
 TEST_FILE = os.path.join(DATA_DIR, "test_state.json")
 

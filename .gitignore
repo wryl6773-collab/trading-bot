@@ -3,3 +3,6 @@ __pycache__/
 *.log
 *.zip
 old_launchers/
+
+# cloud bot state (lives on the bot-data branch)
+cloud_data/
