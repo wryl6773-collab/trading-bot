@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>בוט מסחר וירטואלי</title>
+<link rel="icon" type="image/png" href="icon-32.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2457d6">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="בוט מסחר">
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--text:#1b1f24;--muted:#6b7280;--line:#e5e7eb;--up:#0a7a3d;--down:#b42318;--accent:#2457d6;--chip:#eef2ff}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1318;--card:#171c23;--text:#e8ebf0;--muted:#97a0ad;--line:#2a313b;--up:#4cc38a;--down:#ff8a80;--accent:#7aa2ff;--chip:#1f2a44}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Segoe UI",Arial,sans-serif;line-height:1.5}
+.wrap{max-width:1100px;margin:0 auto;padding:16px}
+h1{font-size:22px;margin:0}
+h2{font-size:17px;margin:24px 0 8px}
+.top{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:12px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:var(--chip);border-radius:999px;padding:4px 12px;font-size:13px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-left:6px;background:var(--muted)}
+.dot.on{background:var(--up)}
+.note{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 14px;color:var(--muted);font-size:13px;margin-bottom:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:9px 12px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--muted);font-weight:600;font-size:12px}
+tr.row{cursor:pointer}
+tr.row:hover{background:var(--chip)}
+.num{font-variant-numeric:tabular-nums;direction:ltr;text-align:left}
+.up{color:var(--up)}.down{color:var(--down)}
+.detail td{white-space:normal;background:var(--bg)}
+.detail h3{font-size:14px;margin:10px 0 4px}
+.desc{color:var(--muted);font-size:13px}
+.scroll{overflow-x:auto}
+.small td,.small th{padding:5px 8px;font-size:13px}
+.reason{white-space:normal;min-width:260px;color:var(--muted)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin-bottom:12px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.kpi small{color:var(--muted);display:block;font-size:12px}
+.kpi b{font-size:22px;font-variant-numeric:tabular-nums}
+.kpi span{font-size:12px;color:var(--muted)}
+.empty-state{background:var(--chip);border-radius:12px;padding:12px 16px;margin-bottom:12px;font-size:14px}
+header.bar{background:linear-gradient(120deg,#1d3fa8,#2b6cd6);color:#fff;border-radius:14px;padding:14px 18px;margin-bottom:12px}
+header.bar h1{color:#fff}
+header.bar .chip{background:rgba(255,255,255,.18);color:#fff}
+.empty{color:var(--muted);padding:8px 0}
+.install{background:#fff;color:#1d3fa8;border:0;border-radius:999px;padding:6px 14px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.stale{color:var(--down);font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="bar top">
+    <h1>📈 בוט מסחר וירטואלי</h1>
+    <button class="install" id="install" hidden>📲 התקן כאפליקציה</button>
+    <div class="chips">
+      <span class="chip"><span class="dot" id="dot"></span><span id="market">...</span></span>
+      <span class="chip">עודכן לאחרונה: <span id="now">--</span></span>
+      <span class="chip">מחיר חי אחרון: <span id="live">--</span></span>
+      <span class="chip">יום מסחר אחרון שעובד: <span id="proc">--</span></span>
+    </div>
+  </header>
+  <div class="note">כסף דמיוני בלבד, בלי ברוקר ובלי כסף אמיתי. זה כלי לימוד ולא ייעוץ השקעות, ותוצאות בעבר לא מבטיחות כלום. <span id="msg"></span></div>
+  <div class="note" id="ios" hidden>באייפון: לחצו על כפתור השיתוף ⬆️ ואז "הוסף למסך הבית" כדי לקבל אייקון של הבוט.</div>
+
+  <div class="kpis" id="kpis"></div>
+  <div class="empty-state" id="wait" hidden></div>
+  <div class="card scroll">
+    <table>
+      <thead><tr><th>אסטרטגיה</th><th>שווי</th><th>רווח/הפסד</th><th>באחוזים</th><th>מזומן</th><th>מניות</th><th>עסקאות</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+
+  <h2>שינוי יומי בשווי (דולר)</h2>
+  <div class="card scroll"><table id="daily"></table></div>
+  <p class="desc">הבוט רץ בענן כל 5 דקות בשעות המסחר בארה"ב, גם כשאף מחשב לא דלוק. הדף מתרענן לבד כל דקה. לחץ על שורת אסטרטגיה כדי לראות הסבר, מניות מוחזקות ועסקאות אחרונות עם הנימוק של כל אחת.</p>
+</div>
+
+<script>
+const NAMES={moving_average:"ממוצעים נעים",momentum:"מומנטום",mean_reversion:"חזרה לממוצע",rsi:"RSI",macd:"MACD",breakout:"פריצה",trailing_stop:"מגמה עם סטופ נגרר",volume:"נפח חריג",dca:"קנייה הדרגתית (DCA)",buy_and_hold:"קנה והחזק (השוואה)"};
+const nm=n=>NAMES[n]||n;
+let open=new Set();
+let last=null;
+const usd=v=>(v<0?"-":"")+"$"+Math.abs(v).toFixed(2);
+const pct=v=>(v>0?"+":"")+v.toFixed(2)+"%";
+const cls=v=>v>0.004?"up":(v<-0.004?"down":"");
+const arrow=v=>v>0.004?"▲ ":(v<-0.004?"▼ ":"");
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function detail(s){
+  let h=`<p class="desc">${esc(s.description)}</p>`;
+  h+=`<h3>מניות מוחזקות</h3>`;
+  if(!s.positions.length) h+=`<div class="empty">אין כרגע מניות מוחזקות.</div>`;
+  else h+=`<div class="scroll"><table class="small"><tr><th>מניה</th><th>כמות</th><th>מחיר קנייה ממוצע</th><th>מחיר עכשיו</th><th>רווח/הפסד</th></tr>`+
+    s.positions.map(p=>`<tr><td>${esc(p.symbol)}</td><td class="num">${p.qty.toFixed(3)}</td><td class="num">${usd(p.avg_price)}</td><td class="num">${usd(p.price)}</td><td class="num ${cls(p.pnl)}">${arrow(p.pnl)}${usd(p.pnl)} (${pct(p.pnl_pct)})</td></tr>`).join("")+`</table></div>`;
+  h+=`<h3>עסקאות אחרונות</h3>`;
+  if(!s.trades.length) h+=`<div class="empty">עדיין אין עסקאות. הבוט מחכה לאות מהאסטרטגיה.</div>`;
+  else h+=`<div class="scroll"><table class="small"><tr><th>זמן</th><th>פעולה</th><th>מניה</th><th>כמות</th><th>מחיר</th><th>עמלה</th><th>למה</th></tr>`+
+    s.trades.map(t=>`<tr><td>${esc(t.time)}</td><td>${t.action==="BUY"?"קנייה":"מכירה"}</td><td>${esc(t.symbol)}</td><td class="num">${t.qty.toFixed(3)}</td><td class="num">${usd(t.price)}</td><td class="num">${usd(t.fee)}</td><td class="reason">${esc(t.reason)}</td></tr>`).join("")+`</table></div>`;
+  return h;
+}
+
+function render(d){
+  last=d;
+  document.getElementById("dot").className="dot"+(d.market_open?" on":"");
+  document.getElementById("market").textContent=d.market_open?"הבורסה האמריקאית פתוחה":"הבורסה האמריקאית סגורה";
+  const ago=Math.round((Date.now()-new Date(d.updated_iso).getTime())/60000);
+  const nowEl=document.getElementById("now");
+  nowEl.textContent=d.updated_at.slice(11)+" "+d.updated_at.slice(8,10)+"/"+d.updated_at.slice(5,7)+(ago>=0?` (לפני ${ago<1?"פחות מדקה":ago+" דק׳"})`:"");
+  nowEl.className=(d.market_open&&ago>30)?"stale":"";
+  document.getElementById("live").textContent=d.live_time||"--";
+  document.getElementById("proc").textContent=d.last_processed||"--";
+  document.getElementById("msg").textContent=d.message||"";
+  const total=d.strategies.reduce((a,s)=>a+s.value,0), start=d.strategies.length*d.start_cash;
+  const trades=d.strategies.reduce((a,s)=>a+s.trades_count,0), held=d.strategies.reduce((a,s)=>a+s.positions.length,0);
+  const best=[...d.strategies].sort((a,b)=>b.pnl-a.pnl)[0], worst=[...d.strategies].sort((a,b)=>a.pnl-b.pnl)[0];
+  const tp=total-start;
+  document.getElementById("kpis").innerHTML=
+   `<div class="kpi"><small>שווי כולל של כל החשבונות</small><b>${usd(total)}</b><br><span class="${cls(tp)}">${arrow(tp)}${usd(tp)} (${pct(tp/start*100)})</span></div>`+
+   `<div class="kpi"><small>האסטרטגיה המובילה</small><b>${esc(nm(best.name))}</b><br><span class="${cls(best.pnl)}">${arrow(best.pnl)}${usd(best.pnl)}</span></div>`+
+   `<div class="kpi"><small>האסטרטגיה האחרונה</small><b>${esc(nm(worst.name))}</b><br><span class="${cls(worst.pnl)}">${arrow(worst.pnl)}${usd(worst.pnl)}</span></div>`+
+   `<div class="kpi"><small>עסקאות עד עכשיו</small><b>${trades}</b><br><span>${held} פוזיציות פתוחות</span></div>`;
+  const wait=document.getElementById("wait");
+  if(trades===0){wait.hidden=false;wait.textContent=d.market_open?"הבורסה פתוחה. הבוט בודק את האסטרטגיות כל 5 דקות, והעסקאות הראשונות יופיעו כאן ברגע שיהיה אות.":"הכול על אפס כי עדיין לא היה מסחר: הבורסה סגורה. היא נפתחת "+d.next_open+" (שעון ישראל), ואז הבוט יתחיל לקנות ולמכור.";}
+  else wait.hidden=true;
+  const list=[...d.strategies].sort((a,b)=>b.value-a.value);
+  document.getElementById("rows").innerHTML=list.map(s=>{
+    const o=open.has(s.name);
+    return `<tr class="row" data-n="${s.name}"><td>${o?"▾":"▸"} ${esc(nm(s.name))}</td><td class="num">${usd(s.value)}</td><td class="num ${cls(s.pnl)}">${arrow(s.pnl)}${usd(s.pnl)}</td><td class="num ${cls(s.pnl)}">${pct(s.pnl_pct)}</td><td class="num">${usd(s.cash)}</td><td class="num">${s.positions.length}</td><td class="num">${s.trades_count}</td></tr>`+
+      (o?`<tr class="detail"><td colspan="7">${detail(s)}</td></tr>`:"");
+  }).join("");
+  document.querySelectorAll("tr.row").forEach(r=>r.onclick=()=>{const n=r.dataset.n;open.has(n)?open.delete(n):open.add(n);render(last);});
+  const names=list.map(s=>s.name);
+  const dt=document.getElementById("daily");
+  if(!d.daily.length){dt.innerHTML=`<tr><td class="empty">עדיין אין ימים שעובדו. הנתון הראשון יופיע אחרי סגירת יום המסחר הבא.</td></tr>`;}
+  else dt.innerHTML=`<tr><th>תאריך</th>${names.map(n=>`<th>${esc(nm(n))}</th>`).join("")}</tr>`+
+    d.daily.map(r=>`<tr><td>${r.date}</td>${names.map(n=>{const c=r.change[n];return c===undefined?`<td class="num">--</td>`:`<td class="num ${cls(c)}">${arrow(c)}${usd(c)}</td>`}).join("")}</tr>`).join("");
+}
+// מאיפה לקרוא את הנתונים: ענף bot-data בריפו, לפי כתובת האתר (owner.github.io/repo)
+function dataUrl(){
+  const q=new URLSearchParams(location.search);
+  if(q.get("data")) return q.get("data");
+  const owner=location.hostname.split(".")[0], repo=location.pathname.split("/")[1]||"trading-bot";
+  return `https://raw.githubusercontent.com/${owner}/${repo}/bot-data/site_state.json`;
+}
+async function tick(){
+  try{
+    const r=await fetch(dataUrl()+(dataUrl().includes("?")?"&":"?")+"t="+Date.now(),{cache:"no-store"});
+    if(!r.ok) throw new Error(r.status);
+    render(await r.json());
+  }catch(e){document.getElementById("msg").textContent="לא הצלחתי לטעון את הנתונים של הבוט כרגע. מנסה שוב בעוד דקה.";}
+}
+tick();setInterval(tick,60000);
+
+// התקנה כאפליקציה: אייקון על שולחן העבודה / מסך הבית
+let deferred=null;
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferred=e;document.getElementById("install").hidden=false;});
+document.getElementById("install").onclick=async()=>{if(!deferred)return;deferred.prompt();await deferred.userChoice;deferred=null;document.getElementById("install").hidden=true;};
+const standalone=matchMedia("(display-mode: standalone)").matches||navigator.standalone;
+if(/iphone|ipad|ipod/i.test(navigator.userAgent)&&!standalone) document.getElementById("ios").hidden=false;
+if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
+</script>
+</body>
+</html>
