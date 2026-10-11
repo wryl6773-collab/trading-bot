@@ -1,0 +1,52 @@
+{
+  "moving_average": {
+    "cash": 550.0,
+    "positions": {},
+    "trades": []
+  },
+  "momentum": {
+    "cash": 550.0,
+    "positions": {},
+    "trades": []
+  },
+  "mean_reversion": {
+    "cash": 550.0,
+    "positions": {},
+    "trades": []
+  },
+  "rsi": {
+    "cash": 550.0,
+    "positions": {},
+    "trades": []
+  },
+  "macd": {
+    "cash": 550.0,
+    "positions": {},
+    "trades": []
+  },
+  "breakout": {
+    "cash": 550.0,
+    "positions": {},
+    "trades": []
+  },
+  "trailing_stop": {
+    "cash": 550.0,
+    "positions": {},
+    "trades": []
+  },
+  "volume": {
+    "cash": 550.0,
+    "positions": {},
+    "trades": []
+  },
+  "dca": {
+    "cash": 550.0,
+    "positions": {},
+    "trades": []
+  },
+  "buy_and_hold": {
+    "cash": 550.0,
+    "positions": {},
+    "trades": []
+  }
+}
