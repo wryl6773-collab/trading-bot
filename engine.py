@@ -18,6 +18,7 @@ STRATEGY_MODULES = [
     "strategy_volume",
     "strategy_dca",
     "strategy_buy_and_hold",
+    "strategy_free",          # 11: בוחרת אסטרטגיה לפי מצב השוק
 ]
 
 
