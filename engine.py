@@ -38,7 +38,11 @@ def run_strategies(close, now_str, accounts, volume=None):
         account = accounts[name]
 
         # אסטרטגיה שמוגדרת ONCE_PER_DAY פועלת פעם אחת בלבד בכל יום מסחר
-        if getattr(strategy, "ONCE_PER_DAY", False):
+        # (אפשר גם פונקציה שמחליטה לפי הנתונים, כמו באסטרטגיה החופשית)
+        once = getattr(strategy, "ONCE_PER_DAY", False)
+        if callable(once):
+            once = once(close)
+        if once:
             today = now_str[:10]
             if any(t["time"][:10] == today for t in account.trades):
                 continue

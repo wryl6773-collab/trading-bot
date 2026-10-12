@@ -63,27 +63,78 @@ DESCRIPTION = (
 )
 
 _spy_cache = None          # מחירי SPY, נשמרים בזיכרון כדי לא להוריד שוב ושוב
-_once_per_day_done = {}    # אסטרטגיות שפועלות פעם ביום: באיזה יום כבר פעלו
+_spy_fetched_at = None     # מתי הורדנו את SPY בפעם האחרונה
+SPY_REFRESH_MINUTES = 30   # אם חסר בו היום האחרון, מורידים שוב לכל היותר פעם בחצי שעה
+
+
+def _as_day(value):
+    """הופך תאריך/שעה (עם אזור זמן או בלי) ליום בלבד, בלי אזור זמן."""
+    ts = pd.Timestamp(value)
+    if ts.tzinfo is not None:
+        ts = ts.tz_localize(None)
+    return ts.normalize()
 
 
 def _get_spy(last_day):
     """מוריד את SPY פעם אחת, ומוריד שוב רק אם חסר בו היום האחרון."""
-    global _spy_cache
-    if _spy_cache is None or _spy_cache.index[-1] < last_day:
+    global _spy_cache, _spy_fetched_at
+    now = pd.Timestamp.now()
+    stale = (_spy_fetched_at is None
+             or now - _spy_fetched_at > pd.Timedelta(minutes=SPY_REFRESH_MINUTES))
+    if _spy_cache is None or (_spy_cache.index[-1] < last_day and stale):
         spy = yf.Ticker("SPY").history(period="10y", interval="1d", auto_adjust=True)
-        spy.index = spy.index.tz_localize(None).normalize()
-        _spy_cache = spy
+        if spy is None or spy.empty:
+            if _spy_cache is None:
+                return None
+        else:
+            index = pd.DatetimeIndex(spy.index)
+            if index.tz is not None:
+                index = index.tz_localize(None)
+            spy.index = index.normalize()
+            _spy_cache = spy[~spy.index.duplicated(keep="last")]
+        _spy_fetched_at = now
     return _spy_cache
+
+
+def _regime_and_module(close):
+    """מצב השוק ביום האחרון שב-close, ושם האסטרטגיה שנבחרה לו (או None)."""
+    regime = current_regime(close)
+    if regime is None:
+        return None, None
+    module_name = RULES.get(regime)
+    if module_name not in ALLOWED:
+        return regime, None
+    return regime, module_name
+
+
+def ONCE_PER_DAY(close):
+    """
+    המנוע (engine.py) שואל את זה לפני כל הפעלה: אם האסטרטגיה שנבחרה להיום
+    פועלת רק פעם ביום (כמו קנייה הדרגתית), המנוע בודק בהיסטוריית העסקאות
+    של החשבון אם כבר הייתה עסקה היום. כך זה עובד גם בענן, שבו כל סבב מתחיל מחדש.
+    """
+    import importlib
+    _, module_name = _regime_and_module(close)
+    if module_name is None:
+        return False
+    return bool(getattr(importlib.import_module(module_name), "ONCE_PER_DAY", False))
 
 
 def current_regime(close):
     """מחזיר את מצב השוק ביום האחרון שב-close (לפי מה שהיה ידוע אתמול)."""
-    last_day = pd.Timestamp(close.index[-1]).tz_localize(None).normalize()
+    if len(close.index) == 0:
+        return None
+    last_day = _as_day(close.index[-1])
     spy = _get_spy(last_day)
+    if spy is None:
+        return None
     spy = spy[spy.index <= last_day]  # רק עד היום הנוכחי: בלי הצצה לעתיד
     if len(spy) == 0:
         return None
-    return label_regimes(spy).iloc[-1]
+    regime = label_regimes(spy).iloc[-1]
+    if regime is None or regime != regime:  # אין מספיק היסטוריה
+        return None
+    return regime
 
 
 def decide(close, held_symbols, volume=None):
@@ -95,22 +146,12 @@ def decide(close, held_symbols, volume=None):
     """
     import importlib
 
-    regime = current_regime(close)
-    if regime is None:
-        return []  # אין מספיק היסטוריה כדי לדעת מה מצב השוק
-
-    module_name = RULES.get(regime)
-    if module_name is None or module_name not in ALLOWED:
-        return []  # עוד לא הוחלט מה עושים במצב הזה
+    regime, module_name = _regime_and_module(close)
+    if module_name is None:
+        return []  # אין מספיק היסטוריה, או שעוד לא הוחלט מה עושים במצב הזה
 
     chosen = importlib.import_module(module_name)
-
-    # אסטרטגיה שפועלת פעם ביום (כמו קנייה הדרגתית) תפעל פעם אחת בלבד בכל יום
-    today = str(pd.Timestamp(close.index[-1]).date())
-    if getattr(chosen, "ONCE_PER_DAY", False):
-        if _once_per_day_done.get(module_name) == today:
-            return []
-        _once_per_day_done[module_name] = today
+    # הערה: "פעם ביום" נבדק במנוע (ראו ONCE_PER_DAY למעלה), לא כאן.
 
     if getattr(chosen, "NEEDS_VOLUME", False):
         if volume is None:
