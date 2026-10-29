@@ -167,5 +167,18 @@
     "dca": 549.4,
     "buy_and_hold": 537.45,
     "free_style": 519.53
+  },
+  "2026-10-29": {
+    "moving_average": 513.29,
+    "momentum": 520.18,
+    "mean_reversion": 571.03,
+    "rsi": 560.37,
+    "macd": 565.99,
+    "breakout": 559.57,
+    "trailing_stop": 582.44,
+    "volume": 580.47,
+    "dca": 550.57,
+    "buy_and_hold": 532.38,
+    "free_style": 518.63
   }
 }
