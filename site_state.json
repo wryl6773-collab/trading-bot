@@ -1,10 +1,10 @@
 {
  "start_cash": 550.0,
  "market_open": false,
- "next_open": "יום חמישי 19/11 ב-16:30",
- "now": "04:31:46",
+ "next_open": "יום שישי 20/11 ב-16:30",
+ "now": "04:20:20",
  "live_time": "22:59:00 13/11",
- "last_processed": "2026-11-18",
+ "last_processed": "2026-11-19",
  "message": "הושלמו בדיעבד 1 ימי מסחר שהוחמצו.",
  "busy": false,
  "strategies": [
@@ -3268,6 +3268,35 @@
  ],
  "daily": [
   {
+   "date": "2026-11-19",
+   "values": {
+    "moving_average": 509.45,
+    "momentum": 458.17,
+    "mean_reversion": 516.56,
+    "rsi": 583.47,
+    "macd": 582.31,
+    "breakout": 543.21,
+    "trailing_stop": 559.13,
+    "volume": 577.54,
+    "dca": 549.99,
+    "buy_and_hold": 522.76,
+    "free_style": 456.83
+   },
+   "change": {
+    "moving_average": 0.0,
+    "momentum": 0.0,
+    "mean_reversion": 0.0,
+    "rsi": 0.0,
+    "macd": 0.0,
+    "breakout": 0.0,
+    "trailing_stop": 0.0,
+    "volume": 0.0,
+    "dca": 0.0,
+    "buy_and_hold": 0.0,
+    "free_style": 0.0
+   }
+  },
+  {
    "date": "2026-11-18",
    "values": {
     "moving_average": 509.45,
@@ -3527,37 +3556,8 @@
     "buy_and_hold": -0.78,
     "free_style": 7.97
    }
-  },
-  {
-   "date": "2026-11-05",
-   "values": {
-    "moving_average": 514.06,
-    "momentum": 470.85,
-    "mean_reversion": 510.61,
-    "rsi": 597.99,
-    "macd": 587.62,
-    "breakout": 552.86,
-    "trailing_stop": 576.36,
-    "volume": 582.42,
-    "dca": 552.63,
-    "buy_and_hold": 530.2,
-    "free_style": 469.52
-   },
-   "change": {
-    "moving_average": -7.07,
-    "momentum": -21.59,
-    "mean_reversion": -28.99,
-    "rsi": -0.24,
-    "macd": -6.71,
-    "breakout": -9.04,
-    "trailing_stop": -18.69,
-    "volume": -11.37,
-    "dca": -2.05,
-    "buy_and_hold": -14.73,
-    "free_style": -21.47
-   }
   }
  ],
- "updated_at": "2026-11-19 04:31",
- "updated_iso": "2026-11-19T04:31:46+02:00"
+ "updated_at": "2026-11-20 04:20",
+ "updated_iso": "2026-11-20T04:20:20+02:00"
 }
